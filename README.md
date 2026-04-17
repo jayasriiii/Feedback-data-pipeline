@@ -1,47 +1,67 @@
 # Feedback Data Pipeline (Azure + Python)
 
-## Overview
+## Problem
 
-This project is a simple data pipeline that processes user feedback stored in Azure Blob Storage.
+User feedback data is stored in raw JSON format in Azure Blob Storage.
+This data is unstructured and not directly useful for analytics.
 
-It:
+## Solution
 
-* Reads raw JSON feedback files from a container
-* Processes the data (adds metadata like feedback length)
-* Writes processed data to another container
+This project builds a simple data pipeline that:
+
+1. Reads raw feedback data from Azure Blob Storage
+2. Processes and enriches the data
+3. Stores cleaned data in a separate container
+
+## What this pipeline actually does
+
+* Reads JSON files from `raw-feedback`
+* Calculates:
+
+  * feedback length
+  * processing status
+* Writes updated JSON to `processed-feedback`
+
+## Example
+
+### Input
+
+{
+"feedback": "Good service"
+}
+
+### Output
+
+{
+"feedback": "Good service",
+"feedback_length": 12,
+"processed": true
+}
 
 ## Tech Stack
 
 * Python
-* Flask (for API)
+* Flask
 * Azure Blob Storage
 
-## Architecture
+## How it works
 
-Raw Container → Processing Script → Processed Container
-
-## Features
-
-* Automated data processing
-* JSON transformation
-* Cloud storage integration
+1. Flask API triggers the pipeline
+2. Python script reads blobs
+3. Data is processed in-memory
+4. Updated data is written back to Azure
 
 ## How to Run
 
-1. Clone the repo
-
-2. Install dependencies:
-   pip install -r requirements.txt
-
-3. Run:
-   python app.py
+pip install -r requirements.txt
+python app.py
 
 ## Future Improvements
 
-* Add validation
+* Add error handling
 * Add logging
-* Add dashboard
-* Deploy on Azure
+* Automate with Azure Functions
+* Add dashboard (Streamlit)
 
 ## Author
 
