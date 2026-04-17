@@ -1,7 +1,10 @@
-def read_data(file_path):
-    import json
+import pandas as pd
 
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-
-    return data
+def read_data():
+    try:
+        data = pd.read_csv("data/raw_feedback.csv")
+        print("✅ Data loaded successfully")
+        return data
+    except Exception as e:
+        print("❌ Error reading data:", e)
+        return None
