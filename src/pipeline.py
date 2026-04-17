@@ -1,38 +1,17 @@
-from azure.storage.blob import BlobServiceClient
-import os
-import json
-import time
-from dotenv import load_dotenv
+from ingest import read_data
+from validate import validate_data
+from transform import transform_data
 
-load_dotenv()
+def run_pipeline():
+    data = read_data("data/raw/input.json")
 
-connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+    data = validate_data(data)
 
-blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    data = transform_data(data)
 
-source_container = "raw-feedback"
-target_container = "processed-feedback"
+    import json
+    with open("data/processed/output.json", "w") as f:
+        json.dump(data, f, indent=4)
 
-container_client = blob_service_client.get_container_client(source_container)
-
-while True:
-    print("Checking for new files...")
-
-    for blob in container_client.list_blobs():
-        blob_client = blob_service_client.get_blob_client(container=source_container, blob=blob.name)
-
-        data = blob_client.download_blob().readall()
-        data = json.loads(data)
-
-        if data.get("processed"):
-            continue
-
-        data["feedback_length"] = len(data["feedback"])
-        data["processed"] = True
-
-        target_blob = blob_service_client.get_blob_client(container=target_container, blob=blob.name)
-        target_blob.upload_blob(json.dumps(data), overwrite=True)
-
-        print(f"Processed: {blob.name}")
-
-    time.sleep(10)
+if __name__ == "__main__":
+    run_pipeline()
